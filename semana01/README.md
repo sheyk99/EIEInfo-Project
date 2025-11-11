@@ -37,11 +37,11 @@ Trabajo de la semana 1 del proyecto final de ie0417
 # -> Resumen ejecutivo del sistema
 
 
-El sistema es un **Portal Web Institucional** desarrollado sobre el *framework* **Django (Python)**, diseñado para centralizar la información y los servicios de las áreas académicas y administrativas de una entidad educativa (Escuela). La arquitectura sigue el patrón **MTV (Model-Template-View)** y está desplegada utilizando **contenedores Docker** (con Nginx/uWSGI), lo que facilita su instalación y gestión.
+El sistema es un **Portal Web Institucional** desarrollado sobre el *framework* **Django (Python)**, diseñado para centralizar la información y los servicios de las áreas académicas y administrativas de la Escuela de Ingeniería Eléctrica. La arquitectura sigue el patrón **MTV (Model-Template-View)** y está desplegada utilizando **contenedores Docker** (con Nginx/uWSGI), lo que facilita su instalación y gestión.
 
 El portal ofrece una navegación segmentada por áreas (`/estudiantes/`, `/profesores/`, `/administrativos/`, `/egresados/`) y por temas institucionales (Noticias, Estudios, Investigación, Docencia, Acción Social). Su funcionalidad central radica en el **Módulo de Estudiantes**, que requiere **autenticación** mediante correo institucional (`@ucr.ac.cr`) para acceder a información personalizada como **cuotas, conferencias y trámites estudiantiles**.
 
-A pesar de ser funcional, el análisis técnico revela problemas significativos de **seguridad** (manejo inseguro de contraseñas y secretos, riesgo de inyección SQL) y **mantenibilidad** (alta duplicación de código, lógica de negocio dispersa en *views*, modelos y utilitarios, y fuerte acoplamiento entre módulos). Las principales oportunidades de mejora giran en torno a **centralizar la lógica de negocio en una capa de servicios (`services/`)**, **corregir el manejo de la autenticación** con las herramientas nativas de Django, y **mejorar la seguridad** eliminando secretos del código y parametrizando las consultas a la base de datos. El sistema está preparado para la extensión modular, pero el refactor es crucial para la estabilidad a largo plazo.
+A pesar de ser funcional, el análisis técnico revela problemas significativos de **seguridad** (manejo inseguro de contraseñas, riesgo de inyección SQL) y **mantenibilidad** (alta duplicación de código, lógica de negocio dispersa en *views*, modelos y utilitarios, y fuerte acoplamiento entre módulos). Las principales oportunidades de mejora giran en torno a **centralizar la lógica de negocio en una capa de servicios (`services/`)**, **corregir el manejo de la autenticación** con las herramientas nativas de Django, y **mejorar la seguridad** eliminando secretos del código y parametrizando las consultas a la base de datos. El sistema está preparado para la extensión modular, pero el refactor es crucial para la estabilidad a largo plazo.
 
 
 El sistema organiza sus contenidos y accesos a través de un **menú superior** que agrupa la información institucional y segmenta los usuarios mediante **módulos dedicados**.
@@ -56,15 +56,6 @@ El sistema soporta cinco tipos principales de usuarios que acceden a áreas espe
 | **Profesores** | Profesor | Gestión de cursos y materiales didácticos. |
 | **Administrativos** | Personal interno | Gestión interna de información y contenidos del sistema. |
 | **Egresados** | Egresado | Bolsa de empleo y servicios post-graduación. |
-
-### Módulo de Estudiantes (Flujo Típico)
-
-Es el módulo más crítico. El flujo se centra en la identidad del estudiante:
-
-1.  **Acceso y Autenticación:** El usuario accede a la sección y debe **iniciar sesión o registrarse** usando su **Carnet** y **Correo Institucional** (`@ucr.ac.cr`).
-2.  **Consulta Interna:** Una vez autenticado, accede a **información personalizada** (**Cuotas**, **Conferencias**, **Trámites Estudiantiles**).
-3.  **Servicios Externos:** Incluye enlaces a servicios complementarios (Bolsa de Empleo, Radio Estudiantil, Plataformas UCR).
-
 
 El sistema utiliza una arquitectura basada en contenedores y un *stack* tecnológico estándar para desarrollo web en Python.
 
@@ -327,7 +318,7 @@ docker/
 ## 1. Código duplicado
 
 **Observado:**  
-- Constantes repetidas o erróneas, como `SI_O_NO_REV` definido dos veces en `administrativos/models.py` y `DEPARTAMENTOS_REV` mapeando desde `SI_O_NO` (error evidente).  
+- Constantes repetidas o erróneas, como `SI_O_NO_REV` definido dos veces en `administrativos/models.py` y `DEPARTAMENTOS_REV` mapeando desde `SI_O_NO`.  
 - Múltiples módulos utilitarios con funciones similares (`misc.py` en `administrativos/`, `estudiantes/`, `alumni/`), que repiten lógica de envío de correos, formateo o consultas.  
 - Scripts SQL duplicados (`init.sql`, `testing.sql`, `clean-test.sql`) tanto en `docker/` como en migraciones.  
 
@@ -401,7 +392,7 @@ Dificulta la trazabilidad, genera dependencia entre la lógica del dominio y la 
 ## TÉCNICAS (Arquitectura, Código, Patrones, BD)
 
 ### 1. Extraer una capa de servicios (`services/`) para la lógica de negocio
-**Descripción:**  
+ 
 Mover la lógica compleja actualmente distribuida entre `views`, `misc.py` y scripts (`nombramientos_auto.py`, `duplicar_ciclo.py`) a una capa de servicios reutilizable.  
 **Beneficio:**  
 Menor acoplamiento entre capas, mejora del testeo unitario y mayor claridad de responsabilidades.  
@@ -410,7 +401,7 @@ Menor acoplamiento entre capas, mejora del testeo unitario y mayor claridad de r
 ---
 
 ### 2. Centralizar constantes y utilidades comunes
-**Descripción:**  
+
 Crear módulos globales (`core/constants.py`, `core/utils.py`) y eliminar duplicaciones entre apps (`misc.py` en cada módulo).  
 **Beneficio:**  
 Evita inconsistencias, facilita cambios globales y mejora la mantenibilidad.  
@@ -419,7 +410,7 @@ Evita inconsistencias, facilita cambios globales y mejora la mantenibilidad.
 ---
 
 ### 3. Corregir manejo de usuarios y contraseñas usando el sistema de autenticación de Django
-**Descripción:**  
+  
 Eliminar implementaciones propias de contraseñas y utilizar `AbstractUser`, `set_password()` y los permisos nativos de Django.  
 **Beneficio:**  
 Mejora la seguridad, la compatibilidad con middlewares y la extensibilidad futura.  
@@ -428,7 +419,6 @@ Mejora la seguridad, la compatibilidad con middlewares y la extensibilidad futur
 ---
 
 ### 4. Remover secretos del repositorio y usar variables de entorno o secret manager
-**Descripción:**  
 Eliminar archivos sensibles (`secret_credentials.py`, `.env`) del control de versiones y documentar el uso de variables seguras.  
 **Beneficio:**  
 Reduce el riesgo de exposición de credenciales y cumple buenas prácticas de seguridad.  
@@ -437,7 +427,7 @@ Reduce el riesgo de exposición de credenciales y cumple buenas prácticas de se
 ---
 
 ### 5. Consolidar y parametrizar consultas SQL
-**Descripción:**  
+ 
 Sustituir consultas SQL sin parámetros por el ORM de Django o queries parametrizadas; revisar `docker/db/*.sql` y migraciones.  
 **Beneficio:**  
 Previene inyecciones SQL, mejora la portabilidad y la consistencia del código.  
@@ -446,7 +436,7 @@ Previene inyecciones SQL, mejora la portabilidad y la consistencia del código.
 ---
 
 ### 6. Implementar pruebas unitarias e integración continua (CI)
-**Descripción:**  
+
 Ampliar los tests existentes, añadir cobertura mínima por módulo y ejecutar `pytest` automáticamente con `drone.yml`.  
 **Beneficio:**  
 Detección temprana de errores, refactors seguros y mejor calidad del código.  
@@ -455,7 +445,7 @@ Detección temprana de errores, refactors seguros y mejor calidad del código.
 ---
 
 ### 7. Introducir pipeline para assets y componentes de UI reutilizables
-**Descripción:**  
+
 Incorporar un sistema de build de frontend (npm/webpack, vite) y unificar plantillas base (`base.html`, includes).  
 **Beneficio:**  
 Interfaz más consistente, mantenimiento más ágil y diseño más moderno.  
@@ -464,7 +454,7 @@ Interfaz más consistente, mantenimiento más ágil y diseño más moderno.
 ---
 
 ### 8. Revisar índices, constraints y normalización de la base de datos
-**Descripción:**  
+
 Auditar modelos y migraciones para agregar índices en columnas críticas y reducir relaciones circulares innecesarias.  
 **Beneficio:**  
 Mejora el rendimiento y la integridad referencial.  
@@ -473,7 +463,7 @@ Mejora el rendimiento y la integridad referencial.
 ---
 
 ### 9. Añadir linter y tipado gradual
-**Descripción:**  
+ 
 Integrar herramientas como `flake8`, `isort` y `mypy` en el pipeline de CI.  
 **Beneficio:**  
 Código más limpio, homogéneo y con menos errores en tiempo de desarrollo.  
@@ -482,7 +472,7 @@ Código más limpio, homogéneo y con menos errores en tiempo de desarrollo.
 ---
 
 ### 10. Asegurar compatibilidad de versiones y dependencias
-**Descripción:**  
+  
 Revisar y actualizar periódicamente `requirements.txt` y `Dockerfile` para mantener compatibilidad y seguridad.  
 **Beneficio:**  
 Evita vulnerabilidades y problemas de despliegue.  
@@ -493,7 +483,7 @@ Evita vulnerabilidades y problemas de despliegue.
 ## FUNCIONALES (Módulos y Mejoras al Sistema)
 
 ### 1. Crear módulo de API interno (REST)
-**Descripción:**  
+
 Exponer operaciones críticas mediante endpoints REST para desacoplar la interacción entre apps y el acceso directo al ORM.  
 **Beneficio:**  
 Facilita integraciones, microservicios y pruebas automatizadas.  
@@ -502,7 +492,7 @@ Facilita integraciones, microservicios y pruebas automatizadas.
 ---
 
 ### 2. Implementar sistema de roles y permisos granulares
-**Descripción:**  
+
 Adoptar `django-guardian` o definir permisos personalizados por objeto (nombramientos, sueldos, trámites).  
 **Beneficio:**  
 Mayor seguridad y control de acceso por tipo de dato o entidad.  
@@ -511,7 +501,7 @@ Mayor seguridad y control de acceso por tipo de dato o entidad.
 ---
 
 ### 3. Añadir módulo de importación y migración de datos (ETL)
-**Descripción:**  
+
 Consolidar los scripts CSV/SQL en comandos `management/` estandarizados para carga de datos iniciales.  
 **Beneficio:**  
 Reproducibilidad y eliminación de duplicidades de datos.  
@@ -520,7 +510,7 @@ Reproducibilidad y eliminación de duplicidades de datos.
 ---
 
 ### 4. Refactorizar y centralizar el sistema de notificaciones
-**Descripción:**  
+ 
 Crear un servicio de notificaciones unificado (email/SMS) con plantillas y posibilidad de colas de envío.  
 **Beneficio:**  
 Consistencia en las comunicaciones y capacidad de monitoreo/reintento.  
@@ -529,7 +519,7 @@ Consistencia en las comunicaciones y capacidad de monitoreo/reintento.
 ---
 
 ### 5. Crear panel de administración de configuración del sistema
-**Descripción:**  
+
 Agregar una interfaz para gestionar parámetros y flags de características sin modificar archivos `.env`.  
 **Beneficio:**  
 Simplifica la operación y reduce riesgo de errores de configuración.  
@@ -538,7 +528,7 @@ Simplifica la operación y reduce riesgo de errores de configuración.
 ---
 
 ### 6. Incorporar módulo de tareas asíncronas
-**Descripción:**  
+
 Usar **Celery** o **RQ** para procesos pesados (duplicación de ciclo, reportes, envío masivo de correos).  
 **Beneficio:**  
 Responde más rápido, mejora la estabilidad y evita bloqueos del servidor principal.  
@@ -547,7 +537,7 @@ Responde más rápido, mejora la estabilidad y evita bloqueos del servidor princ
 ---
 
 ### 7. Añadir documentación técnica y diagramas por módulo
-**Descripción:**  
+
 Crear README por app, archivo `ARCHITECTURE.md` y diagramas en formato Mermaid.  
 **Beneficio:**  
 Facilita el onboarding de nuevos desarrolladores y reduce errores al extender el sistema.  
@@ -556,7 +546,7 @@ Facilita el onboarding de nuevos desarrolladores y reduce errores al extender el
 ---
 
 ### 8. Revisar dependencias cruzadas entre apps y definir interfaces más limpias
-**Descripción:**  
+
 Analizar relaciones entre modelos de diferentes apps y desacoplar mediante funciones o servicios bien definidos.  
 **Beneficio:**  
 Reduce el acoplamiento y facilita el mantenimiento y la extensión de nuevas funcionalidades.  
