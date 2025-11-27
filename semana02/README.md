@@ -235,7 +235,7 @@ Los mensajes deben:
 
 ---
 
-## 📘 Especificaciones técnicas detalladas
+##  Especificaciones técnicas detalladas
 
 ### **Estructura de salida del helper**
 ```json
@@ -260,7 +260,7 @@ Cada requerimiento incluye un **criterio de aceptación medible**.
 
 ---
 
-# 1. Requerimientos Funcionales (8)
+# 1. Requerimientos Funcionales 
 
 ### **F1 — Validación y despliegue de errores por campo**  
 El sistema deberá permitir validar en el servidor cualquier formulario enviado y mostrar en el HTML resultante los errores por campo, aplicando una clase CSS estandarizada (`.field-error`) en cada elemento con error.
@@ -328,7 +328,7 @@ Existe `tests/test_form_error_handling.py`, todos los tests pasan y la cobertura
 
 ---
 
-# 2. Requerimientos No Funcionales (5)
+# 2. Requerimientos No Funcionales
 
 ### **N1 — Seguridad de logs**  
 Los logs no deberán contener datos sensibles ni información de identificación personal.  
@@ -371,7 +371,7 @@ El archivo existe y contiene secciones para: resumen, uso del helper, estructura
 
 ---
 
-# 3. Restricciones (3)
+# 3. Restricciones
 
 ### **R1 — No agregar dependencias externas**  
 No se permitirá integrar servicios adicionales como Sentry ni agregar paquetes nuevos en `requirements.txt`.
@@ -422,7 +422,6 @@ La suite de regresión existente pasa sin fallos y los formularios no modificado
 
 
 # -> Arquitectura propuesta
-
 
 ### **Capas y Componentes del Sistema:**
 
@@ -636,7 +635,7 @@ El objetivo principal de esta semana es **construir la solución** propuesta sig
 - Asegurarse de que todos los errores se gestionen adecuadamente y de que las validaciones necesarias estén implementadas correctamente. El manejo de excepciones debe ser específico y no genérico.
 
 ### d. **Log Interno o Mensajes de Depuración:**
-- Implementar un sistema de logging interno para registrar eventos importantes, errores y excepciones que ocurran durante el proceso. Asegúrate de no almacenar información sensible.
+- Implementar un sistema de logging interno para registrar eventos importantes, errores y excepciones que ocurran durante el proceso. Sin almacenar información sensible.
 
 ---
 
@@ -688,7 +687,7 @@ El objetivo principal de esta semana es **construir la solución** propuesta sig
    El código debe ser funcional y subido a GitHub, con las ramas de `main`, `dev` y las ramas de características específicas.
 
 2. **Evidencias Visuales**:  
-   Incluir capturas de pantalla o videos cortos que demuestren que la implementación está funcionando correctamente.
+   Incluir capturas de pantalla que demuestren que la implementación está funcionando correctamente.
 
 3. **Documento Técnico**:  
    Un documento con:
@@ -696,11 +695,3 @@ El objetivo principal de esta semana es **construir la solución** propuesta sig
    - **Cambios Respecto al Plan Original**.
    - **Limitaciones Técnicas**.
 
----
-
-# **Evaluación de la Semana 3**:
-
-- Se evaluará la **calidad del código**, la **modularidad**, y la **correcta implementación** del sistema según las **especificaciones** definidas en la semana anterior.
-- Además, se valorará la **documentación** y el **seguimiento a las buenas prácticas de desarrollo de software**.
-
----
